@@ -1,3 +1,6 @@
+import base64
+import requests
+
 def convert_normal_to_gpt(message):
     updated_gpt_data = []
     
@@ -147,3 +150,67 @@ def convert_normal_to_gpt_vision(message,model_class="gpt-ocr"):
                 ]
             })
     return updated_gpt_vision_data
+
+def convert_normal_to_claude_vision(message, model_class="claude-vision"):
+    updated_claude_vision_data = []
+
+    def url_to_base64(url):
+        response = requests.get(url)
+        return base64.b64encode(response.content).decode('utf-8')
+
+    if model_class == "claude-vision":
+        if 'systemPrompt' in message and 'user_image' in message:
+            image_data = message['user_image']
+            if isinstance(image_data, str) and image_data.startswith('http'):
+                base64_image = url_to_base64(image_data)
+            elif isinstance(image_data, str):
+                base64_image = image_data
+            else:
+                raise ValueError("Image data must be either a URL or a base64-encoded string.")
+
+            updated_claude_vision_data.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": message['systemPrompt']
+                    },
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",  
+                            "data": base64_image
+                        }
+                    }
+                ]
+            })
+    else:
+        if 'systemPrompt' in message and 'answer' in message:
+            image_data = message['answer'][0] if isinstance(message['answer'], list) else message['answer']
+            if isinstance(image_data, str) and image_data.startswith('http'):
+                base64_image = url_to_base64(image_data)
+            elif isinstance(image_data, str):
+                base64_image = image_data
+            else:
+                raise ValueError("Image data must be either a URL or a base64-encoded string.")
+
+            updated_claude_vision_data.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"{message['systemPrompt']}, Question: {message['question']}, {message['Rubric']}"
+                    },
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",  # Adjust based on actual media type
+                            "data": base64_image
+                        }
+                    }
+                ]
+            })
+
+    return updated_claude_vision_data
