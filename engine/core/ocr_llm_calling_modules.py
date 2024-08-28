@@ -10,7 +10,7 @@ import anthropic
 import replicate
 import google.generativeai as genai
 
-from engine.core.llm_format_convertion import convert_gpt_to_claude, convert_normal_to_gpt, convert_normal_to_gpt_vision
+from engine.core.llm_format_convertion import convert_gpt_to_claude, convert_normal_to_gpt, convert_normal_to_gpt_vision, convert_normal_to_claude_vision
 from engine.gen_utils_files.utils import convert_rubric_to_string, find_data_in_string
 
 def openai_ocr(user_image,system_prompt="",description='',model_name='gpt-4o',lang='english'):
