@@ -181,7 +181,7 @@ def convert_normal_to_claude_vision(message, model_class="claude-vision"):
                         "source": {
                             "type": "base64",
                             "media_type": "image/jpeg",  
-                            "data": base64_image
+                            "data": "<base64_encoded_image>"
                         }
                     }
                 ]
