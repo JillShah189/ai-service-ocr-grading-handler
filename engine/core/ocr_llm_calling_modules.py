@@ -3,11 +3,7 @@ Modules to be added
 openai-ocr
 openai-ocr-essay
 openai-mcq-ocr
-anthropic-ocr
 antropic_ocr_electricity
-anthropic-ocr-maths
-anthropic-ocr-maths-geo
-anthropic-ocr-maths-frac
 '''
 import requests,json,os
 import anthropic
@@ -125,3 +121,138 @@ def anthropic_scoring(student_answer,maxScore,rubrics,question,system_prompt="",
         claude_response = {"feedback":"Claude does not found answer","score":0,'maxScore':1}
         claude_statusCode = 400
     return {"statusCode":claude_statusCode,"response":claude_response}
+
+
+def anthropic_ocr(image, modelName="claude-3-5-sonnet-20240620", description="", lang="eng", system_prompt=""):
+    client = anthropic.Anthropic(
+        api_key=os.getenv("claude_api_key"),
+    )
+    
+    #model_name = modelName if modelName else "claude-3-5-sonnet-20240620"
+    
+    messages_ocr = convert_normal_to_claude_vision({
+        "systemPrompt": system_prompt,
+        "user_image": image
+    })
+    
+    message = client.messages.create(
+        model=model_name,
+        max_tokens=1000,
+        temperature=0.1,
+        system=messages_ocr["system"],
+        messages=messages_ocr["messages"],
+    )
+    
+    if message.content:
+        ocr_response = json.loads(message.content[0].text)
+        response = {
+            "ocr": ocr_response.get("ocr", "")
+        }
+        ocr_statusCode = 200
+    else:
+        response = {"ocr": ""}
+        ocr_statusCode = 400
+    
+    return {"statusCode": ocr_statusCode, "response": response}
+
+def anthropic_ocr_maths(image, modelName="claude-3-5-sonnet-20240620", description="", lang="eng", promptImplList=None, system_prompt=""):
+    client = anthropic.Anthropic(
+        api_key=os.getenv("claude_api_key"),
+    )
+    
+    #model_name = modelName if modelName else "claude-3-5-sonnet-20240620"
+    
+    messages_ocr_maths = convert_normal_to_claude_vision({
+        "systemPrompt": system_prompt,
+        "user_image": image
+    })
+    
+    message = client.messages.create(
+        model=model_name,
+        max_tokens=1000,
+        temperature=0.1,
+        system=messages_ocr_maths["system"],
+        messages=messages_ocr_maths["messages"],
+    )
+    
+    if message.content:
+        ocr_response = json.loads(message.content[0].text)
+        response = {
+            "ocr": ocr_response.get("ocr", ""),
+            "rough_work": ocr_response.get("rough_work", ""),
+            "final_answer": ocr_response.get("final_answer", [])
+        }
+        ocr_statusCode = 200
+    else:
+        response = {"ocr": "", "rough_work": "", "final_answer": []}
+        ocr_statusCode = 400
+    
+    return {"statusCode": ocr_statusCode, "response": response}
+
+def anthropic_ocr_maths_geo(promptImplList, image, modelName="claude-3-5-sonnet-20240620", description="", lang="eng", system_prompt=""):
+    client = anthropic.Anthropic(
+        api_key=os.getenv("claude_api_key"),
+    )
+    
+    #model_name = modelName if modelName else "claude-3-5-sonnet-20240620"
+    
+    messages_ocr_maths_geo = convert_normal_to_claude_vision({
+        "systemPrompt": system_prompt,
+        "user_image": image
+    })
+    
+    message = client.messages.create(
+        model=model_name,
+        max_tokens=1000,
+        temperature=0.1,
+        system=messages_ocr_maths_geo["system"],
+        messages=messages_ocr_maths_geo["messages"],
+    )
+    
+    if message.content:
+        ocr_geo_response = json.loads(message.content[0].text)
+        response = {
+            "ocr": ocr_geo_response.get("ocr", ""),
+            "rough_work": ocr_geo_response.get("rough_work", ""),
+            "final_answer": ocr_geo_response.get("final_answer", [])
+        }
+        ocr_geo_statusCode = 200
+    else:
+        response = {"ocr": "", "rough_work": "", "final_answer": []}
+        ocr_geo_statusCode = 400
+    
+    return {"statusCode": ocr_geo_statusCode, "response": response}
+
+def anthropic_ocr_maths_frac(promptImplList, image, modelName="claude-3-5-sonnet-20240620", description="", lang="eng", system_prompt=""):
+    client = anthropic.Anthropic(
+        api_key=os.getenv("claude_api_key"),
+    )
+    
+    #model_name = modelName if modelName else "claude-3-5-sonnet-20240620"
+    
+    messages_ocr_maths_frac = convert_normal_to_claude_vision({
+        "systemPrompt": system_prompt,
+        "user_image": image
+    })
+    
+    message = client.messages.create(
+        model=model_name,
+        max_tokens=1000,
+        temperature=0.1,
+        system=messages_ocr_maths_frac["system"],
+        messages=messages_ocr_maths_frac["messages"],
+    )
+    
+    if message.content:
+        ocr_frac_response = json.loads(message.content[0].text)
+        response = {
+            "ocr": ocr_frac_response.get("ocr", ""),
+            "rough_work": ocr_frac_response.get("rough_work", ""),
+            "final_answer": ocr_frac_response.get("final_answer", [])
+        }
+        ocr_frac_statusCode = 200
+    else:
+        response = {"ocr": "", "rough_work": "", "final_answer": []}
+        ocr_frac_statusCode = 400
+    
+    return {"statusCode": ocr_frac_statusCode, "response": response}
