@@ -151,6 +151,7 @@ def convert_normal_to_gpt_vision(message,model_class="gpt-ocr"):
             })
     return updated_gpt_vision_data
 
+
 def convert_normal_to_claude_vision(message, model_class="claude-vision"):
     updated_claude_vision_data = []
 
@@ -185,32 +186,9 @@ def convert_normal_to_claude_vision(message, model_class="claude-vision"):
                     }
                 ]
             })
-    else:
-        if 'systemPrompt' in message and 'answer' in message:
-            image_data = message['answer'][0] if isinstance(message['answer'], list) else message['answer']
-            if isinstance(image_data, str) and image_data.startswith('http'):
-                base64_image = url_to_base64(image_data)
-            elif isinstance(image_data, str):
-                base64_image = image_data
-            else:
-                raise ValueError("Image data must be either a URL or a base64-encoded string.")
 
-            updated_claude_vision_data.append({
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"{message['systemPrompt']}, Question: {message['question']}, {message['Rubric']}"
-                    },
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/jpeg",  # Adjust based on actual media type
-                            "data": base64_image
-                        }
-                    }
-                ]
-            })
+    return {
+        "system": {"type": "text", "text": message.get('systemPrompt', '')},
+        "messages": updated_claude_vision_data
+    }
 
-    return updated_claude_vision_data
