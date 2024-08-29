@@ -1,9 +1,5 @@
 '''
 Modules to be added
-openai-ocr
-openai-ocr-essay
-openai-mcq-ocr
-antropic_ocr_electricity
 '''
 import requests,json,os
 import anthropic
@@ -40,6 +36,67 @@ def openai_ocr(user_image,system_prompt="",description='',model_name='gpt-4o',la
         return response.status_code
     else:
         return response.status_code
+
+def openai_ocr_essay(user_image, system_prompt="", description='', model_name='gpt-4o', lang='eng'):
+    api_key = os.getenv("OPENAI_API_KEY")
+    temperature = 0
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    messages_vision = {
+        "systemPrompt": system_prompt,
+        "user_image": user_image
+    }
+
+    payload = {
+        "model": model_name,
+        "messages": convert_normal_to_gpt_vision(messages_vision),
+        "temperature": temperature
+    }
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+
+    if response.status_code == 200:
+        response = response.json()
+        return {"response": response["choices"][0]["message"]["content"], "statusCode": 200}
+    elif response.status_code == 503:
+        return response.status_code
+    else:
+        return response.status_code
+
+def openai_mcq_ocr(user_image, system_prompt="", description='', model_name='gpt-4o', lang='eng'):
+    api_key = os.getenv("OPENAI_API_KEY")
+    temperature = 0
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    messages_vision = {
+        "systemPrompt": system_prompt,
+        "user_image": user_image
+    }
+
+    payload = {
+        "model": model_name,
+        "messages": convert_normal_to_gpt_vision(messages_vision),
+        "temperature": temperature
+    }
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+
+    if response.status_code == 200:
+        response = response.json()
+        return {"response": response["choices"][0]["message"]["content"], "statusCode": 200}
+    elif response.status_code == 503:
+        return response.status_code
+    else:
+        return response.status_code
+
 
 def openai_scoring(student_answer,maxScore,rubrics,question,system_prompt="",model_name="gpt-4o",lang="english"):
     # messages,model_name='gpt-4o'):    
