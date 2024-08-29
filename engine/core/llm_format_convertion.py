@@ -1,4 +1,3 @@
-import base64
 import requests
 
 def convert_normal_to_gpt(message):
@@ -152,7 +151,7 @@ def convert_normal_to_gpt_vision(message,model_class="gpt-ocr"):
     return updated_gpt_vision_data
 
 
-def convert_normal_to_claude_vision(message, model_class="claude-vision"):
+'''def convert_normal_to_claude_vision(message, model_class="claude-vision"):
     updated_claude_vision_data = []
 
     def url_to_base64(url):
@@ -190,5 +189,70 @@ def convert_normal_to_claude_vision(message, model_class="claude-vision"):
     return {
         "system": {"type": "text", "text": message.get('systemPrompt', '')},
         "messages": updated_claude_vision_data
+    }'''
+
+
+def convert_normal_to_claude_vision(message, model_class="claude-vision"):
+    updated_claude_vision_data = []
+
+    if model_class == "claude-vision":
+        if 'systemPrompt' in message and 'user_image' in message:
+            image_data = message['user_image']
+            if isinstance(image_data, str) and image_data.startswith('http'):
+                image_url = image_data
+            else:
+                raise ValueError("Image data must be a valid URL.")
+
+            updated_claude_vision_data.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": message['systemPrompt']
+                    },
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "url",
+                            "url": image_url
+                        }
+                    }
+                ]
+            })
+
+    return {
+        "system": {"type": "text", "text": message.get('systemPrompt', '')},
+        "messages": updated_claude_vision_data
     }
 
+
+'''
+def convert_gpt_vision_to_claude(gpt_vision_data):
+    claude_data = {
+        "system": "",
+        "messages": []
+    }
+    
+    combined_user_data = []
+
+    for message in gpt_vision_data:
+        if message["role"] == "system":
+            claude_data["system"] += message["content"].strip() + "\n\n"
+        elif message["role"] == "user":
+            for content in message["content"]:
+                if content["type"] == "text":
+                    combined_user_data.append(content["text"])
+                elif content["type"] == "image_url":
+                    combined_user_data.append(f"[Image URL: {content['image_url']['url']}]")
+
+    combined_user_text = ", ".join(combined_user_data)
+    
+    claude_data["messages"] = [
+        {"role": "user", "content": [{"text": combined_user_text, "type": "text"}]}
+    ]
+    
+
+    claude_data["system"] = claude_data["system"].strip()
+    
+    return claude_data
+'''
